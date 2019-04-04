@@ -6,25 +6,24 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Very basic "Database" of posts, in form of a struct
 type post struct {
 	ID string `json:"id"`
 	Title string `json:"title"`
 	Content string `json:"content"`
 	IsPublished bool `json:"ispublished"`
 }
-
-// total beschissene Art, drei posts in ein slice von Posts zu tun, aber zum testen genuegts
 var eins post = post{ID: "1", Title: "Erster Post", Content: "Dies ist der erste Post.", IsPublished: true } 
 var zwei post = post{ID: "2", Title: "Zweiter Post", Content: "Dies ist der zweite Post.", IsPublished: true }
 var drei post = post{ID: "3", Title: "Letzter Post", Content: "Dies ist der letzte Post.", IsPublished: true }
 var posts = []post{eins, zwei, drei}
 
-// Liesst alle Posts und gibt ein json mit allen posts als response aus
+// Sends all posts to client (in form of a json block)
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
-// Liesst alle posts, vergleicht ob Id stimmt, gibt post mit passender Id als json aus
+// Sends the selected post to client
 func GetPost(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	for _, indexpost := range posts {
@@ -34,6 +33,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Deletes the post with corresponding ID in URL from the database
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	l := len(posts)
@@ -47,6 +47,8 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write([]byte("Post does not exist. Cannot delete.\n"))
 }
+
+// Decodes new post (json) from the client's request and appends it to the "database"
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	for _, indexpost := range posts {
@@ -61,6 +63,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
         posts = append(posts, newpost)
         w.Write([]byte("Post successfully created!\n"))
 }
+
+// Updates post in database by replacing the struct with the corresponding ID from the slice
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	l := len(posts)
